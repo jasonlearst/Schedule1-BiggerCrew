@@ -31,7 +31,7 @@ jobs:
           cd bin/Release/netstandard2.1
           sha256sum BiggerCrew.dll | tee BiggerCrew.dll.sha256
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: BiggerCrew-${{ github.sha }}
           path: |
