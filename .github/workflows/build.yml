@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'LICENSE', '.gitignore']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['**.md', 'LICENSE', '.gitignore']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: SHA256
+        run: |
+          cd bin/Release/netstandard2.1
+          sha256sum BiggerCrew.dll | tee BiggerCrew.dll.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BiggerCrew-${{ github.sha }}
+          path: |
+            bin/Release/netstandard2.1/BiggerCrew.dll
+            bin/Release/netstandard2.1/BiggerCrew.dll.sha256
+          if-no-files-found: error
+          retention-days: 30

@@ -31,10 +31,16 @@ then `dotnet build -c Release` — the build target auto-copies the new DLL into
 
 ## Build
 
-Requires:
-- .NET 8 SDK
-- Game installed on the **alternate** branch (the build references the Mono
-  `Schedule I_Data/Managed/*.dll` and the local `MelonLoader/net6/*.dll`)
+Requires .NET 8 SDK. References resolve from one of two places:
+
+1. **`refs/`** (committed stripped reference assemblies) — used by CI and by
+   anyone without the game installed
+2. The local Schedule I install (`../Schedule I_Data/Managed/`,
+   `../MelonLoader/net6/`) — used as a fallback when `refs/` is absent
+
+Stripped refs preserve the full type/member metadata (only IL bodies are
+removed), so both paths produce identical output. See `refs/NOTICE.md` for
+the licensing situation around those files.
 
 ```bash
 cd <repo>
@@ -44,6 +50,22 @@ dotnet build -c Release
 The csproj uses [`Krafs.Publicizer`](https://github.com/krafs/Publicizer) so
 that private game members (`Lobby.CreateLobby`, `LobbyInterface.UpdateButtons`,
 `Player.ReceivePlayerNameData`, …) can be called directly without reflection.
+
+## Reproducible builds via GitHub Actions
+
+Every push to `main` triggers `.github/workflows/build.yml`, which builds
+`BiggerCrew.dll` from source on a clean Ubuntu runner and uploads it as an
+artifact alongside its SHA256.
+
+Pushing a tag matching `v*` (e.g. `v1.1.0`) triggers
+`.github/workflows/release.yml`, which builds the DLL and attaches it to a
+GitHub release. The release body links back to the exact source commit so
+anyone can verify that the published DLL came from the published source.
+
+```bash
+git tag v1.1.0
+git push --tags
+```
 
 ## Diagnostic logging
 

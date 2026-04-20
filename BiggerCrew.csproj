@@ -21,10 +21,21 @@
     <Publicize Include="FishNet.Runtime" />
   </ItemGroup>
 
+  <!-- Build sources its references from one of two places:
+       1. refs/Managed and refs/MelonLoader (committed stripped reference
+          assemblies; used by CI and by anyone without the game installed)
+       2. The local Schedule I install (used when refs/ is absent)
+       The two produce identical output because the stripped refs preserve
+       the full type/member metadata; only IL bodies were removed. -->
   <PropertyGroup>
     <GameDir>$(MSBuildProjectDirectory)\..</GameDir>
-    <ManagedDir>$(GameDir)\Schedule I_Data\Managed</ManagedDir>
-    <MelonNet6Dir>$(GameDir)\MelonLoader\net6</MelonNet6Dir>
+    <RefsDir>$(MSBuildProjectDirectory)\refs</RefsDir>
+
+    <ManagedDir Condition="Exists('$(RefsDir)\Managed')">$(RefsDir)\Managed</ManagedDir>
+    <ManagedDir Condition="!Exists('$(RefsDir)\Managed')">$(GameDir)\Schedule I_Data\Managed</ManagedDir>
+
+    <MelonNet6Dir Condition="Exists('$(RefsDir)\MelonLoader')">$(RefsDir)\MelonLoader</MelonNet6Dir>
+    <MelonNet6Dir Condition="!Exists('$(RefsDir)\MelonLoader')">$(GameDir)\MelonLoader\net6</MelonNet6Dir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -79,8 +90,9 @@
     </Reference>
   </ItemGroup>
 
-  <!-- Drop the built DLL straight into the Mods folder -->
-  <Target Name="CopyToMods" AfterTargets="Build">
+  <!-- Drop the built DLL straight into the Mods folder when it exists.
+       Skipped on CI runners and on machines without the game installed. -->
+  <Target Name="CopyToMods" AfterTargets="Build" Condition="Exists('$(GameDir)\Mods')">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)\Mods" />
     <Message Importance="high" Text="Copied $(TargetFileName) to $(GameDir)\Mods\" />
   </Target>

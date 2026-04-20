@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to create (e.g. v1.1.0)'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build
+        run: dotnet build -c Release
+
+      - name: Compute SHA256
+        run: |
+          cd bin/Release/netstandard2.1
+          sha256sum BiggerCrew.dll | tee BiggerCrew.dll.sha256
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: ${{ github.event.inputs.tag || github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          body: |
+            ## Install
+
+            1. Steam → Schedule I → Properties → Betas → opt into `alternate`
+            2. Install MelonLoader for Mono via the official installer
+            3. Drop `BiggerCrew.dll` (attached below) into `<game>/Mods/`
+            4. Every player in the session must have the same `BiggerCrew.dll`
+
+            ## Reproducibility
+
+            This DLL was built by GitHub Actions from the tagged commit.
+            See the workflow run linked under "Assets" for the full build
+            log. The `BiggerCrew.dll.sha256` file pins the exact bytes.
+
+            Source: https://github.com/${{ github.repository }}/tree/${{ github.sha }}
+          files: |
+            bin/Release/netstandard2.1/BiggerCrew.dll
+            bin/Release/netstandard2.1/BiggerCrew.dll.sha256
