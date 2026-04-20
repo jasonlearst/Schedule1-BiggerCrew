@@ -22,6 +22,17 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Extract built-for game version
+        id: gameversion
+        run: |
+          VER=$(grep -oP 'BUILT_FOR_GAME_VERSION = "\K[^"]+' BiggerCrew.cs)
+          BID=$(grep -oP 'BUILT_FOR_STEAM_BUILDID = "\K[^"]+' BiggerCrew.cs)
+          MOD=$(grep -oP 'MOD_VERSION = "\K[^"]+' BiggerCrew.cs)
+          echo "version=$VER" >> $GITHUB_OUTPUT
+          echo "buildid=$BID" >> $GITHUB_OUTPUT
+          echo "modversion=$MOD" >> $GITHUB_OUTPUT
+          echo "Built for: Schedule I '$VER' (buildid $BID), mod v$MOD"
+
       - name: Build
         run: dotnet build -c Release
 
@@ -38,6 +49,20 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           body: |
+            ## Compatibility
+
+            | | |
+            |---|---|
+            | **Built and tested against** | Schedule I `${{ steps.gameversion.outputs.version }}` (Steam buildid `${{ steps.gameversion.outputs.buildid }}`) |
+            | **Mod version** | `${{ steps.gameversion.outputs.modversion }}` |
+            | **Steam branch** | `alternate` (also tolerates `alternate-beta`) |
+
+            On any other game build the mod will load and log a warning
+            comparing `Application.version` to its build target. Patches
+            may still work (they're written to be tolerant of small
+            changes) but verify by checking `MelonLoader/Latest.log` for
+            the per-patch success messages.
+
             ## Install
 
             1. Steam → Schedule I → Properties → Betas → opt into `alternate`

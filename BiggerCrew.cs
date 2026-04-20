@@ -16,7 +16,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly: MelonInfo(typeof(BiggerCrew.Core), "BiggerCrew", "1.1.0", "Jason Learst")]
+[assembly: MelonInfo(typeof(BiggerCrew.Core), "BiggerCrew", "1.1.1", "Jason Learst")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BiggerCrew
@@ -24,14 +24,26 @@ namespace BiggerCrew
     public class Core : MelonMod
     {
         public const int LOBBY_CAPACITY = 16;
-        public const string MOD_VERSION = "1.1.0";
+        public const string MOD_VERSION = "1.1.1";
+
+        // The Schedule I version this build was tested against. Bump these
+        // when refreshing refs/ after a game update. Workflow release.yml
+        // greps these strings, so keep the format stable.
+        public const string BUILT_FOR_GAME_VERSION = "0.4.5f2 Alternate";
+        public const string BUILT_FOR_STEAM_BUILDID = "22829948";
 
         private HarmonyLib.Harmony _harmony;
 
         public override void OnInitializeMelon()
         {
             Log.I($"=== BiggerCrew v{MOD_VERSION} initializing ===");
-            Log.I($"Game version: '{Application.version}'");
+            Log.I($"Built for: Schedule I '{BUILT_FOR_GAME_VERSION}' (Steam buildid {BUILT_FOR_STEAM_BUILDID})");
+            Log.I($"Currently running: '{Application.version}'");
+            if (Application.version != BUILT_FOR_GAME_VERSION)
+            {
+                Log.W($"Game version '{Application.version}' differs from build target '{BUILT_FOR_GAME_VERSION}'.");
+                Log.W("Mod may misbehave on this build - check the repo for an update.");
+            }
             Log.I($"Unity version: {Application.unityVersion}");
             Log.I($"Lobby capacity target: {LOBBY_CAPACITY}");
 

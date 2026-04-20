@@ -8,6 +8,18 @@ remain. They are used solely so that this project can be compiled in
 environments that don't have the game installed (notably the GitHub
 Actions runner that produces the published `BiggerCrew.dll`).
 
+## Stripped from
+
+| Game | Schedule I `0.4.5f2 Alternate` |
+|---|---|
+| Steam buildid | `22829948` |
+| Branch | `alternate` |
+| Stripped on | 2026-04-19 |
+
+When this version goes stale, refresh per the procedure at the bottom of
+this file and bump the matching `BUILT_FOR_GAME_VERSION` /
+`BUILT_FOR_STEAM_BUILDID` constants in `BiggerCrew.cs`.
+
 ## These files are NOT covered by the project's GPL-3.0 license
 
 The GPL-3.0 license that covers the BiggerCrew source code does **not**

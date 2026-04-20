@@ -8,6 +8,21 @@ sub-branches from joining each other.
 Targets the **alternate** (Mono) Steam branch of Schedule I. Will not load on
 the default-public IL2CPP branch.
 
+## Compatibility
+
+| | |
+|---|---|
+| **Built and tested against** | Schedule I `0.4.5f2 Alternate` (Steam buildid `22829948`) |
+| **Steam branch** | `alternate` (also tolerates `alternate-beta`) |
+| **MelonLoader** | 0.7.x for Mono |
+| **Unity runtime** | 2022.3.62f2 (MonoBleedingEdge) |
+
+The mod logs the build target and the live `Application.version` at startup
+and warns if they don't match. If TVGS publishes an update that changes the
+`Lobby` / `LobbyInterface` / `Player` API surface this mod patches, the
+diagnostic logging in `MelonLoader/Latest.log` will tell you which patch
+broke (see `DESIGN.md` § "How to update when the game changes").
+
 ## Install
 
 1. Opt into the `alternate` (or `alternate-beta`) branch in Steam:
