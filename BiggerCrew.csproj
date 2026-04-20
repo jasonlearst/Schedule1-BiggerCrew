@@ -4,8 +4,8 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
-    <AssemblyName>MultiplayerFix</AssemblyName>
-    <RootNamespace>MultiplayerFix</RootNamespace>
+    <AssemblyName>BiggerCrew</AssemblyName>
+    <RootNamespace>BiggerCrew</RootNamespace>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.0</Version>

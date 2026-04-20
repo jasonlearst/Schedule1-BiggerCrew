@@ -1,4 +1,4 @@
-# MultiplayerFix
+# BiggerCrew
 
 A [MelonLoader](https://melonwiki.xyz/) mod for **Schedule I** that raises the
 multiplayer lobby limit from 4 to 16 and bypasses the `Application.version`
@@ -14,13 +14,13 @@ the default-public IL2CPP branch.
    right-click Schedule I → Properties → Betas → select branch.
 2. Install MelonLoader for Mono via the official installer:
    <https://github.com/LavaGang/MelonLoader.Installer/releases>
-3. Drop `MultiplayerFix.dll` into `<game>/Mods/`.
-4. **Every player in the session must have the same `MultiplayerFix.dll`**
+3. Drop `BiggerCrew.dll` into `<game>/Mods/`.
+4. **Every player in the session must have the same `BiggerCrew.dll`**
    (verify by SHA256 in `MelonLoader/Latest.log`).
 
 ## Configuration
 
-Compile-time only — edit `MultiplayerFix.cs`:
+Compile-time only — edit `BiggerCrew.cs`:
 
 ```csharp
 public const int LOBBY_CAPACITY = 16;   // raise to 20 max; >20 is unstable
@@ -96,8 +96,8 @@ out" for details.
 ## Repository layout
 
 ```
-MultiplayerFix.csproj   - .NET project; Krafs.Publicizer + game DLL refs
-MultiplayerFix.cs       - Single source file (~250 lines)
+BiggerCrew.csproj   - .NET project; Krafs.Publicizer + game DLL refs
+BiggerCrew.cs       - Single source file (~250 lines)
 README.md               - This file
 DESIGN.md               - Technical design notes; reference if game updates
 LICENSE                 - GPL-3.0

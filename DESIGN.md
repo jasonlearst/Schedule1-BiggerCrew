@@ -1,4 +1,4 @@
-# MultiplayerFix — Design notes
+# BiggerCrew — Design notes
 
 Reference document for understanding why each patch exists and how to update
 the mod when Schedule I receives a game update. Aimed at a future maintainer
@@ -18,7 +18,7 @@ game update, and `Il2CppInterop` itself can crash during generation, which is
 exactly what blocked us before the branch switch). Modding the Mono build is
 straightforward: it's just patching a regular .NET game with Harmony.
 
-**MultiplayerFix targets the Mono build only.** It will not load on Default
+**BiggerCrew targets the Mono build only.** It will not load on Default
 Public, and it doesn't try to.
 
 ## The four problems we solve
@@ -167,7 +167,7 @@ collaterally damaged unrelated UI text in the IL2CPP version).
 ## How to update when the game changes
 
 If a Schedule I update breaks the mod, the log is the first stop.
-`MultiplayerFix v1.1.0` writes loud warnings exactly when the things that can
+`BiggerCrew v1.1.0` writes loud warnings exactly when the things that can
 break do break:
 
 | Log line | Meaning | Action |

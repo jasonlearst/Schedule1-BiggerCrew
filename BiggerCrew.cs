@@ -16,10 +16,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly: MelonInfo(typeof(MultiplayerFix.Core), "MultiplayerFix", "1.1.0", "Jason Learst")]
+[assembly: MelonInfo(typeof(BiggerCrew.Core), "BiggerCrew", "1.1.0", "Jason Learst")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
-namespace MultiplayerFix
+namespace BiggerCrew
 {
     public class Core : MelonMod
     {
@@ -30,12 +30,12 @@ namespace MultiplayerFix
 
         public override void OnInitializeMelon()
         {
-            Log.I($"=== MultiplayerFix v{MOD_VERSION} initializing ===");
+            Log.I($"=== BiggerCrew v{MOD_VERSION} initializing ===");
             Log.I($"Game version: '{Application.version}'");
             Log.I($"Unity version: {Application.unityVersion}");
             Log.I($"Lobby capacity target: {LOBBY_CAPACITY}");
 
-            _harmony = new HarmonyLib.Harmony("MultiplayerFix");
+            _harmony = new HarmonyLib.Harmony("BiggerCrew");
             _harmony.PatchAll();
 
             // FishNet generates RPC method names with a hash suffix
@@ -55,7 +55,7 @@ namespace MultiplayerFix
                 Log.W("RpcLogic___SendPlayerNameData_* NOT FOUND - player name sync will be vanilla");
             }
 
-            Log.I($"=== MultiplayerFix loaded ===");
+            Log.I($"=== BiggerCrew loaded ===");
         }
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
