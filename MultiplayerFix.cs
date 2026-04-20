@@ -16,7 +16,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly: MelonInfo(typeof(MultiplayerFix.Core), "MultiplayerFix", "1.1.0", "you")]
+[assembly: MelonInfo(typeof(MultiplayerFix.Core), "MultiplayerFix", "1.1.0", "Jason Learst")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MultiplayerFix
