@@ -16,7 +16,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly: MelonInfo(typeof(BiggerCrew.Core), "BiggerCrew", "1.1.1", "Jason Learst")]
+[assembly: MelonInfo(typeof(BiggerCrew.Core), "BiggerCrew", "1.1.2", "Jason Learst")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BiggerCrew
@@ -24,7 +24,7 @@ namespace BiggerCrew
     public class Core : MelonMod
     {
         public const int LOBBY_CAPACITY = 16;
-        public const string MOD_VERSION = "1.1.1";
+        public const string MOD_VERSION = "1.1.2";
 
         // The Schedule I version this build was tested against. Bump these
         // when refreshing refs/ after a game update. Workflow release.yml
@@ -105,18 +105,30 @@ namespace BiggerCrew
             try
             {
                 var entries = lobbyUI.GetComponentInChildren<GridLayoutGroup>().transform;
-                int existingChildren = entries.childCount;
-                Log.I($"LobbyInterface entries.childCount before clone = {existingChildren}");
+                // entries layout: child[0] is a non-slot control (invite hint),
+                // child[1..N] are the player slot RectTransforms.
+                int currentSlotCount = entries.childCount - 1;
+                int needToClone = LOBBY_CAPACITY - currentSlotCount;
+                Log.I($"LobbyInterface entries: currentSlotCount={currentSlotCount}, needToClone={needToClone}");
 
-                if (entries.childCount > 1)
+                // Idempotent: if Lobby/LobbyInterface are persistent singletons
+                // (DontDestroyOnLoad), Menu->Game->Menu would otherwise stack
+                // clones on top of clones, eventually overshooting Lobby.Players's
+                // length and leaving stale active slots showing the host avatar.
+                if (needToClone > 0 && entries.childCount > 1)
                 {
                     var template = entries.GetChild(1);
-                    for (int i = 0; i < LOBBY_CAPACITY - 4; i++)
+                    for (int i = 0; i < needToClone; i++)
                     {
                         var newEntry = UnityEngine.Object.Instantiate(template.gameObject, entries);
                         int newIndex = entries.childCount - 1;
                         newEntry.name = template.gameObject.name + " (" + newIndex + ")";
                     }
+                    Log.I($"Cloned {needToClone} extra slots; entries now has {entries.childCount - 1} player slots");
+                }
+                else if (needToClone < 0)
+                {
+                    Log.W($"entries already has {currentSlotCount} player slots, more than LOBBY_CAPACITY={LOBBY_CAPACITY} - leaving them in place");
                 }
 
                 int slotCount = entries.childCount - 1;
@@ -128,6 +140,11 @@ namespace BiggerCrew
                 entries.GetChild(1).SetSiblingIndex(LOBBY_CAPACITY);
                 lobbyUI.LobbyTitle.text = $"Lobby ({lobbyUI.Lobby.PlayerCount}/{LOBBY_CAPACITY})";
                 lobbyUI.enabled = true;
+
+                // Force a fresh slot pass so empty slots get hidden, not left
+                // active with the host avatar copied from the cloning template.
+                // Critical when returning from a game session to the Menu.
+                lobbyUI.UpdatePlayers();
 
                 Log.I($"LobbyInterface configured: PlayerSlots={slotCount}, title='{lobbyUI.LobbyTitle.text}'");
             }

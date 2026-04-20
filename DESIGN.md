@@ -201,6 +201,46 @@ Useful searches in the dumped sources:
 If `Krafs.Publicizer` stops finding a member, the field/method may have been
 renamed; check the decompile.
 
+## Gotchas observed in the wild
+
+### Idempotency in `WaitForLobby` (fixed in v1.1.2)
+
+`Lobby` and `LobbyInterface` are persistent singletons (effectively
+`DontDestroyOnLoad`). When a player goes Menu → Game → Menu, the same
+`LobbyInterface` instance lives on, with our previously-cloned slots
+still attached to its `GridLayoutGroup`. A naive `WaitForLobby` that
+unconditionally clones `LOBBY_CAPACITY - 4` slots will stack clones on
+top of clones each time the Menu scene re-initializes:
+
+| Menu visit | `entries.childCount` before | after a 12-slot clone | `PlayerSlots.Length` | `Lobby.Players.Length` |
+|---|---|---|---|---|
+| 1st | 5 | 17 | 16 | 16 |
+| 2nd | 17 | 29 | **28** | 16 |
+| 3rd | 29 | 41 | **40** | 16 |
+
+After the 2nd visit, `UpdatePlayers()` would iterate
+`PlayerSlots.Length` (28) but index `Lobby.Players[i]` (length 16) and
+throw `IndexOutOfRangeException` at `i=16`. Slots 16..27 (12 of them)
+would never get the `ClearPlayer()` call that hides them, so they'd
+remain visibly active showing the host avatar that the cloning template
+inherited. Combined with slot 0 being explicitly set to the local
+player, the player would see exactly **13 duplicate avatars** while the
+"X / 16" counter still correctly read 1.
+
+The fix:
+- Compute `needToClone = LOBBY_CAPACITY - (entries.childCount - 1)` and
+  only clone the difference. `needToClone <= 0` means we already cloned
+  on a previous visit and there's nothing to do.
+- Always rebuild `PlayerSlots` from the current `entries` children so
+  the array length matches whatever's actually there.
+- Call `lobbyUI.UpdatePlayers()` at the end of `WaitForLobby`, so fresh
+  slots get hidden via `ClearPlayer` instead of inheriting the
+  template's host-avatar texture.
+
+If you ever change `LOBBY_CAPACITY`, the idempotent path will leave
+existing oversize layouts in place and warn — that's intentional, since
+removing slots reliably from a live UI is a different problem.
+
 ## How to extend
 
 - **Different capacity:** edit `LOBBY_CAPACITY` in `Core`. Keep ≤ 20 — Steam
